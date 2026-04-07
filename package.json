@@ -12,8 +12,9 @@
     "lint:fix": "eslint . --ext .ts --fix"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@eslint/js": "^10.0.0",
+    "@types/bun": "latest",
+    "@types/react": "^19.2.14",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import-x": "^4.16.1",
@@ -25,7 +26,13 @@
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
+    "ink": "^6.8.0",
+    "ink-markdown": "^1.0.4",
+    "ink-spinner": "^5.0.0",
+    "ink-text-input": "^6.0.0",
+    "marked-terminal": "^7.3.0",
     "openai": "^6.33.0",
+    "react": "^19.2.4",
     "zod": "^4.3.6"
   }
 }

@@ -42,6 +42,7 @@ Use the given tools and skills to perform parallel/sequential operations and sol
 
 <notes>
 - Never try to start a local static server. Let the user do it.
+- If the user's input is a simple task or a greeting, you should just respond with a simple answer and then stop.
 </notes>
 `,
     messages,
