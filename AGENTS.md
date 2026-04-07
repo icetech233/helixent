@@ -2,9 +2,9 @@
 
 Helixent is a small library for building **ReAct-style** agent loops on the **Bun** stack.
 
-This project is organized into **three layers**, plus a separate `community` area for third-party integrations.
+This project is organized into **four layers**, plus a separate `community` area for third-party integrations, and CLI/TUI and skills support.
 
-## Architecture (3 layers)
+## Architecture (4 layers)
 
 ### 1) `foundation`
 
@@ -12,7 +12,12 @@ Core primitives that everything else builds on:
 
 - **Models**: the `Model` abstraction and provider-facing contracts.
 - **Messages**: a single transcript type that flows end-to-end through the system.
-- **Tools**: tool definitions and execution plumbing (the “actions” an agent can invoke).
+- **Tools**: tool definitions and execution plumbing (the "actions" an agent can invoke).
+
+Files:
+- `src/foundation/models/*`
+- `src/foundation/messages/*`
+- `src/foundation/tools/*`
 
 Design intent:
 
@@ -25,12 +30,13 @@ Design intent:
 A reusable **ReAct-style agent loop**:
 
 - Maintains state over a conversation transcript.
-- Chooses between “think / act / observe” style steps (implementation details may vary, but the loop is the product).
+- Chooses between "think / act / observe" style steps.
 - Orchestrates tool calls and feeds observations back into the next reasoning step.
 
-- **Agent**: `src/agent/agent.ts`
-- **Middleware**: `src/agent/agent-middleware.ts`
-- **Skills**: `src/agent/skills/*`
+Files:
+- `src/agent/agent.ts`
+- `src/agent/agent-middleware.ts`
+- `src/agent/skills/*` (skill system middleware)
 
 This layer should depend only on `foundation`, and remain generic (not coding-specific).
 
@@ -38,10 +44,18 @@ This layer should depend only on `foundation`, and remain generic (not coding-sp
 
 A layer for coding-specific agents and tools.
 
-- **Leading Agent**: `src/coding/agents/lead-agent.ts`, `createCodingAgent()`
+- **Leading Agent**: `src/coding/agents/lead-agent.ts`
 - **Tools**: `src/coding/tools/*`, including `bash`, `read_file`, `write_file`, `str_replace`
 
-### 4) `community` (in-repo integrations)
+### 4) `cli`
+
+CLI layer for interactive agent usage:
+
+- `src/cli/tui/*` - Terminal UI components built with Ink
+- `src/cli/tui/hooks/*` - React hooks for the agent loop
+- `src/cli/tui/themes/*` - TUI theming
+
+## `community` (in-repo integrations)
 
 In-repo integrations live under `src/community/*`.
 
@@ -52,28 +66,27 @@ Current integrations:
 
 - `src/community/openai`: `OpenAIModelProvider` backed by the `openai` SDK, using Chat Completions with function tools.
 
-## `community` (external)
+## Skills
 
-`community` contains **third-party integrations** that are maintained separately from the core layering above.
+Skill system for enhancing agent capabilities:
 
-Guidelines:
+- Skills are loaded from the `skills/` directory at the project root
+- Each skill is a self-contained module with a `SKILL.md` definition
+- Skill middleware: `src/agent/skills/skill-reader.ts`, `src/agent/skills/skills-middleware.ts`
 
-- Treat it as optional and decoupled; avoid coupling `foundation`/`agent` to integrations.
-- Prefer adapters that implement existing `foundation` interfaces instead of changing core types.
+Current skills:
+- `skill-creator` - Create and manage skills
+- `frontend-design` - Frontend design and UI development
 
 ## Stack
 
 - **Runtime / package manager**: [Bun](https://bun.com)
 - **Language**: TypeScript (strict, `moduleResolution: "bundler"`)
-- **Dependencies**: `openai` (provider SDK), `zod` (tool parameter schemas)
+- **Dependencies**: `openai` (provider SDK), `zod` (tool parameter schemas), `ink` (TUI), `react` (UI components)
 
 ## Imports
 
-- **Library (subpath) imports**: `helixent/*` maps to `./src/*` via `tsconfig` `paths`
-    - Examples: `helixent/foundation`, `helixent/agent`, `helixent/community/openai`
-- **Internal**: `@/*` maps to `./src/*`
-
-Note: this repo currently uses **subpath** imports (e.g. `helixent/foundation`) in `index.ts`, not `import { … } from "helixent"`.
+- **Internal**: `@/*` maps to `./src/*` via `tsconfig` `paths`
 
 ## Conventions
 
@@ -100,7 +113,3 @@ Environment variables used by the sample root `index.ts` are provider-specific (
 ## Quality gate
 
 Run `bun run check` as the main gate (`tsc --noEmit` + ESLint). Use `bun run check:types` for type-check-only validation.
-
-## Notes
-
-- `package.json`’s `build:js` script currently targets `./src/index.ts`, but the current `src/` tree does not include `src/index.ts`.
