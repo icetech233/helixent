@@ -11,13 +11,13 @@ export function Header() {
       <Box flexDirection="column">
         <Box columnGap={1}>
           <Text color={currentTheme.colors.primary}>Helixent</Text>
-          <Text color={currentTheme.colors.secondaryText}>v0.1.0</Text>
+          <Text dimColor>v0.1.0</Text>
         </Box>
         <Box>
-          <Text color={currentTheme.colors.secondaryText}>{agent.model.name}</Text>
+          <Text dimColor>{agent.model.name}</Text>
         </Box>
         <Box columnGap={1}>
-          <Text color={currentTheme.colors.secondaryText}>{process.cwd()}</Text>
+          <Text dimColor>{process.cwd()}</Text>
         </Box>
       </Box>
     </Box>

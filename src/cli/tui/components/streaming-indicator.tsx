@@ -24,10 +24,7 @@ export function StreamingIndicator({ streaming, nextTodo }: { streaming: boolean
     () => SPINNER_TYPES[Math.floor(Math.random() * SPINNER_TYPES.length)] as ComponentProps<typeof Spinner>["type"],
     [],
   );
-  const loadingMessage = useMemo(
-    () => LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)],
-    [],
-  );
+  const loadingMessage = useMemo(() => LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)], []);
 
   return (
     <Box flexDirection="column">
@@ -37,7 +34,7 @@ export function StreamingIndicator({ streaming, nextTodo }: { streaming: boolean
         </Text>
         <Text color={currentTheme.colors.primary}>{loadingMessage}</Text>
       </Box>
-      {nextTodo && <Text color={currentTheme.colors.secondaryText}>Next: {nextTodo}</Text>}
+      {nextTodo && <Text dimColor>Next: {nextTodo}</Text>}
     </Box>
   );
 }

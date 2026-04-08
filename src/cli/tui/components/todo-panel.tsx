@@ -1,7 +1,7 @@
 import { Box, Text } from "ink";
 
-import type { TodoItemView } from "../todo-view";
 import { currentTheme } from "../themes";
+import type { TodoItemView } from "../todo-view";
 
 export function TodoPanel({ todos }: { todos?: TodoItemView[] }) {
   if (!todos || todos.length === 0) return null;
@@ -20,7 +20,7 @@ export function TodoPanel({ todos }: { todos?: TodoItemView[] }) {
     >
       <Box columnGap={1}>
         <Text color={currentTheme.colors.primary}>Tasks</Text>
-        <Text color={currentTheme.colors.secondaryText}>
+        <Text dimColor>
           {completedCount} completed
           {inProgressCount > 0 ? `, ${inProgressCount} in progress` : ""}
           {pendingCount > 0 ? `, ${pendingCount} pending` : ""}
@@ -29,9 +29,7 @@ export function TodoPanel({ todos }: { todos?: TodoItemView[] }) {
       {todos.map((todo) => (
         <Box key={todo.id} columnGap={1}>
           <Text color={getTodoColor(todo.status)}>{getTodoIcon(todo.status)}</Text>
-          <Text color={todo.status === "completed" ? currentTheme.colors.secondaryText : undefined}>
-            {todo.content}
-          </Text>
+          <Text dimColor={todo.status === "completed"}>{todo.content}</Text>
         </Box>
       ))}
     </Box>

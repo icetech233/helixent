@@ -26,12 +26,7 @@ export function MessageHistory({ messages }: { messages: NonSystemMessage[]; str
             return <UserMessageItem key={index} message={message} />;
           case "assistant":
             return (
-              <AssistantMessageItem
-                key={index}
-                message={message}
-                todoSnapshots={todoSnapshots}
-                messageIndex={index}
-              />
+              <AssistantMessageItem key={index} message={message} todoSnapshots={todoSnapshots} messageIndex={index} />
             );
           case "tool":
             return <ToolMessageItem key={index} message={message} toolUses={toolUses} />;
@@ -84,12 +79,9 @@ export function AssistantMessageItem({
           case "tool_use":
             return (
               <Box key={i} columnGap={1}>
-                <Text color={currentTheme.colors.secondaryText}>⏺</Text>
+                <Text dimColor>⏺</Text>
                 <Box flexDirection="column">
-                  <ToolUseContentItem
-                    content={content}
-                    todos={todoSnapshots.get(snapshotKey(messageIndex, i))}
-                  />
+                  <ToolUseContentItem content={content} todos={todoSnapshots.get(snapshotKey(messageIndex, i))} />
                 </Box>
               </Box>
             );
@@ -101,19 +93,13 @@ export function AssistantMessageItem({
   );
 }
 
-export function ToolUseContentItem({
-  content,
-  todos,
-}: {
-  content: ToolUseContent;
-  todos?: TodoItemView[];
-}) {
+export function ToolUseContentItem({ content, todos }: { content: ToolUseContent; todos?: TodoItemView[] }) {
   switch (content.name) {
     case "bash":
       return (
         <Box flexDirection="column">
           <Text>{content.input.description as string}</Text>
-          <Text color={currentTheme.colors.secondaryText}>└─ {content.input.command as string}</Text>
+          <Text dimColor>└─ {content.input.command as string}</Text>
         </Box>
       );
     case "str_replace":
@@ -122,7 +108,7 @@ export function ToolUseContentItem({
       return (
         <Box flexDirection="column">
           <Text>{content.input.description as string}</Text>
-          <Text color={currentTheme.colors.secondaryText}>└─ {content.input.path as string}</Text>
+          <Text dimColor>└─ {content.input.path as string}</Text>
         </Box>
       );
     case "todo_write": {
@@ -137,7 +123,7 @@ export function ToolUseContentItem({
         <Box flexDirection="column">
           <Text>{summaryTodo ? `Working on: ${summaryTodo.content}` : "Todo list complete"}</Text>
           {(completedCount > 0 || pendingCount > 0) && (
-            <Text color={currentTheme.colors.secondaryText}>
+            <Text dimColor>
               └─ {completedCount} completed{pendingCount > 0 ? `, ${pendingCount} pending` : ""}
             </Text>
           )}
@@ -148,7 +134,7 @@ export function ToolUseContentItem({
       return (
         <Box flexDirection="column">
           <Text>Tool call</Text>
-          <Text color={currentTheme.colors.secondaryText}>└─ {content.name}</Text>
+          <Text dimColor>└─ {content.name}</Text>
         </Box>
       );
   }
@@ -172,9 +158,9 @@ export function ToolMessageItem({
     <Box flexDirection="column" width="100%">
       {visibleContent.map((content, i) => (
         <Box key={i} columnGap={1}>
-          <Text color={currentTheme.colors.secondaryText}>✓</Text>
+          <Text dimColor>✓</Text>
           <Box flexDirection="column">
-            <Text color={currentTheme.colors.secondaryText}>{content.content}</Text>
+            <Text dimColor>{content.content}</Text>
           </Box>
         </Box>
       ))}

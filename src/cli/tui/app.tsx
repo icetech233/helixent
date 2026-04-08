@@ -1,5 +1,6 @@
 import { Box } from "ink";
 
+import { Footer } from "./components/footer";
 import { Header } from "./components/header";
 import { InputBox } from "./components/input-box";
 import { MessageHistory } from "./components/message-history";
@@ -19,15 +20,15 @@ export function App() {
   const hideTodos = !streaming && allDone(latestTodos);
 
   return (
-    <Box flexDirection="column" rowGap={1} width="100%">
+    <Box flexDirection="column" width="100%">
       <Header />
-      <MessageHistory messages={messages} streaming={streaming} />
-      <StreamingIndicator streaming={streaming} nextTodo={nextTodo} />
-      {!hideTodos && <TodoPanel todos={latestTodos} />}
-      <InputBox
-        onSubmit={onSubmit}
-        onAbort={abort}
-      />
+      <Box flexDirection="column" marginTop={1} rowGap={1}>
+        <MessageHistory messages={messages} streaming={streaming} />
+        <StreamingIndicator streaming={streaming} nextTodo={nextTodo} />
+        {!hideTodos && <TodoPanel todos={latestTodos} />}
+        <InputBox onSubmit={onSubmit} onAbort={abort} />
+      </Box>
+      <Footer />
     </Box>
   );
 }
