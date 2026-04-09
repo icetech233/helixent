@@ -10,9 +10,13 @@ import { Model } from "@/foundation";
 
 import { App } from "./tui";
 import { AgentLoopProvider } from "./tui/hooks/use-agent-loop";
+import { HELIXENT_NAME, HELIXENT_VERSION } from "./version";
 
 const program = new Command();
-program.name("helixent").description("Helixent — a blue rabbit that writes code").version("1.0.1");
+program
+  .name(HELIXENT_NAME)
+  .description("Helixent — a blue rabbit that writes code")
+  .version(HELIXENT_VERSION, "-v, --version");
 
 registerCommands(program);
 
