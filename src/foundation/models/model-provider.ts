@@ -1,33 +1,36 @@
 import type { AssistantMessage, Message } from "../messages";
 import type { Tool } from "../tools";
 
+export interface ModelProviderInvokeParams {
+  model: string;
+  messages: Message[];
+  tools?: Tool[];
+  options?: Record<string, unknown>;
+  signal?: AbortSignal;
+}
+
 /**
  * A provider for a model.
  */
 export interface ModelProvider {
   /**
    * Invokes the model with the given messages and options.
-   * @param model - The model to invoke.
-   * @param messages - The messages to send to the model.
-   * @param options - The options to pass to the model.
-   * @returns The response from the model.
+   * @param params - The parameters for the invocation.
+   * @returns The complete response from the model.
    */
-  invoke({
+  invoke(
     // eslint-disable-next-line no-unused-vars
-    model,
+    params: ModelProviderInvokeParams,
+  ): Promise<AssistantMessage>;
+
+  /**
+   * Streams the model response, yielding accumulated snapshots.
+   * Each yielded value is a progressively more complete {@link AssistantMessage}.
+   * The final yielded value is equivalent to what {@link invoke} would return.
+   * @param params - The parameters for the invocation (same as {@link invoke}).
+   */
+  stream(
     // eslint-disable-next-line no-unused-vars
-    messages,
-    // eslint-disable-next-line no-unused-vars
-    tools,
-    // eslint-disable-next-line no-unused-vars
-    options,
-    // eslint-disable-next-line no-unused-vars
-    signal,
-  }: {
-    model: string;
-    messages: Message[];
-    tools?: Tool[];
-    options?: Record<string, unknown>;
-    signal?: AbortSignal;
-  }): Promise<AssistantMessage>;
+    params: ModelProviderInvokeParams,
+  ): AsyncGenerator<AssistantMessage>;
 }

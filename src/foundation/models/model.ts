@@ -1,7 +1,7 @@
 import type { Message } from "../messages";
 
 import type { ModelContext } from "./model-context";
-import type { ModelProvider } from "./model-provider";
+import type { ModelProvider, ModelProviderInvokeParams } from "./model-provider";
 
 /**
  * Represents a model that can be used to generate text.
@@ -33,17 +33,32 @@ export class Model {
    * @returns The response from the model.
    */
   invoke(context: ModelContext) {
+    const params = this._buildModelProviderParams(context);
+    return this.provider.invoke(params);
+  }
+
+  /**
+   * Streams the model response, yielding accumulated snapshots.
+   * @param context - The context to send to the model.
+   * @returns The stream of responses from the model.
+   */
+  stream(context: ModelContext) {
+    const params = this._buildModelProviderParams(context);
+    return this.provider.stream(params);
+  }
+
+  private _buildModelProviderParams(context: ModelContext): ModelProviderInvokeParams {
     const messages: Message[] = [];
     if (context.prompt) {
       messages.push({ role: "system", content: [{ type: "text", text: context.prompt }] });
     }
     messages.push(...context.messages);
-    return this.provider.invoke({
+    return {
       model: this.name,
       options: this.options,
-      messages: messages,
+      messages: context.messages,
       tools: context.tools,
       signal: context.signal,
-    });
+    };
   }
 }

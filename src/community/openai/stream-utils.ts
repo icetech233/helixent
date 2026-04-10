@@ -1,0 +1,89 @@
+import type { ChatCompletionChunk } from "openai/resources";
+
+import type { AssistantMessage, AssistantMessageContent, TokenUsage } from "@/foundation";
+
+function toTokenUsage(usage?: {
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
+}) {
+  if (!usage) return undefined;
+  return {
+    promptTokens: usage.prompt_tokens ?? 0,
+    completionTokens: usage.completion_tokens ?? 0,
+    totalTokens: usage.total_tokens ?? 0,
+  };
+}
+
+export class StreamAccumulator {
+  private reasoningContent = "";
+  private textContent = "";
+  private toolCalls = new Map<number, { id: string; name: string; arguments: string }>();
+  private usage: TokenUsage | undefined;
+
+  push(chunk: ChatCompletionChunk): void {
+    const delta = chunk.choices[0]?.delta;
+
+    if (delta) {
+      // Reasoning / thinking content
+      const reasoning = (delta as { reasoning_content?: string }).reasoning_content;
+      if (typeof reasoning === "string") {
+        this.reasoningContent += reasoning;
+      }
+
+      // Text content
+      if (typeof delta.content === "string") {
+        this.textContent += delta.content;
+      }
+
+      // Tool calls
+      if (delta.tool_calls) {
+        for (const tc of delta.tool_calls) {
+          let entry = this.toolCalls.get(tc.index);
+          if (!entry) {
+            entry = { id: tc.id ?? "", name: tc.function?.name ?? "", arguments: "" };
+            this.toolCalls.set(tc.index, entry);
+          }
+          if (tc.id) entry.id = tc.id;
+          if (tc.function?.name) entry.name = tc.function.name;
+          if (tc.function?.arguments) entry.arguments += tc.function.arguments;
+        }
+      }
+    }
+
+    // Usage arrives on the final chunk (choices is empty)
+    if (chunk.usage) {
+      this.usage = toTokenUsage(chunk.usage);
+    }
+  }
+
+  snapshot(): AssistantMessage {
+    const content: AssistantMessageContent = [];
+
+    if (this.reasoningContent) {
+      content.push({ type: "thinking", thinking: this.reasoningContent });
+    }
+    if (this.textContent) {
+      content.push({ type: "text", text: this.textContent });
+    }
+
+    // Sort by index to preserve order
+    const sorted = [...this.toolCalls.entries()].sort((a, b) => a[0] - b[0]);
+    for (const [, tc] of sorted) {
+      let input: Record<string, unknown> = {};
+      try {
+        input = JSON.parse(tc.arguments);
+      } catch {
+        // arguments JSON is still incomplete — yield empty input for now
+      }
+      content.push({ type: "tool_use", id: tc.id, name: tc.name, input });
+    }
+
+    return {
+      role: "assistant",
+      content,
+      usage: this.usage,
+      ...(this.usage ? {} : { streaming: true }),
+    };
+  }
+}
