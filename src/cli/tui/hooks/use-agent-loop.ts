@@ -99,8 +99,11 @@ export function AgentLoopProvider({ agent, children }: { agent: Agent; children:
         setMessages((prev) => [...prev, userMessage]);
 
         const stream = agent.stream(userMessage);
-        for await (const message of stream) {
-          enqueueMessage(message);
+        for await (const event of stream) {
+          if (event.type === "message") {
+            enqueueMessage(event.message);
+          }
+          // progress events: no-op for now; placeholder for a future live indicator
         }
       } catch (error) {
         if (isAbortError(error)) return;
