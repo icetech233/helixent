@@ -97,6 +97,16 @@ describe("formatToolResultForMessage", () => {
     });
   });
 
+  test("passes through raw read_file text results", () => {
+    const content = ["1: const x = 1;", "2: const y = 2;"].join("\n");
+    const formatted = formatToolResultForMessage({
+      toolName: "read_file",
+      result: content,
+    });
+
+    expect(formatted).toBe(content);
+  });
+
   test("formats errors with stable structured shape", () => {
     const formatted = formatToolResultForMessage({
       toolName: "grep_search",

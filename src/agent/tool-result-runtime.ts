@@ -98,6 +98,10 @@ export function normalizeToolResult(result: unknown): NormalizedToolResult {
 }
 
 export function formatToolResultForMessage({ toolName, result }: { toolName: string; result: unknown }): string {
+  if (toolName === "read_file" && typeof result === "string" && !result.startsWith("Error:")) {
+    return result;
+  }
+
   const normalized = normalizeToolResult(result);
   const policy = getToolResultPolicy(toolName);
 
