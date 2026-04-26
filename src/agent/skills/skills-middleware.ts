@@ -78,7 +78,6 @@ export function createSkillsMiddleware(skillsDirs: string[] = [join(process.cwd(
         const skillsXML = agentContext.skills
           .map((skill) => `<skill name="${skill.name}" path="${skill.path}">\n${skill.description}\n</skill>`)
           .join("\n");
-        console.info(skillsXML);
 
         return {
           prompt:
