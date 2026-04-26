@@ -1,31 +1,34 @@
 import type {
-  ChatCompletionAssistantMessageParam,
   ChatCompletionContentPart,
-  ChatCompletionMessage,
-  ChatCompletionMessageParam,
   ChatCompletionTool,
 } from "openai/resources";
 
 import type { AssistantMessage, Message, TokenUsage, Tool } from "@/foundation";
+
+import type {
+  OpenAIAssistantMessageParam,
+  OpenAIChatCompletionMessage,
+  OpenAIChatCompletionMessageParam,
+} from "./types";
 
 /**
  * Converts the messages to OpenAI ChatCompletionMessageParam messages.
  * @param messages - The messages to convert.
  * @returns The OpenAI ChatCompletionMessageParam messages.
  */
-export function convertToOpenAIMessages(messages: Message[]): ChatCompletionMessageParam[] {
-  const openaiMessages: ChatCompletionMessageParam[] = [];
+export function convertToOpenAIMessages(messages: Message[]): OpenAIChatCompletionMessageParam[] {
+  const openaiMessages: OpenAIChatCompletionMessageParam[] = [];
   for (const message of messages) {
     if (message.role === "system" || message.role === "user") {
       openaiMessages.push(message);
     } else if (message.role === "assistant") {
-      const assistantMessage: ChatCompletionAssistantMessageParam = {
+      const assistantMessage: OpenAIAssistantMessageParam = {
         role: "assistant",
         content: [],
       };
       for (const content of message.content) {
         if (content.type === "thinking") {
-          continue;
+          assistantMessage.reasoning_content = content.thinking;
         } else if (content.type === "tool_use") {
           if (!assistantMessage.tool_calls) {
             assistantMessage.tool_calls = [];
@@ -67,7 +70,7 @@ export function convertToOpenAIMessages(messages: Message[]): ChatCompletionMess
  * @returns The parsed assistant message.
  */
 export function parseAssistantMessage(
-  message: ChatCompletionMessage & { reasoning_content?: string },
+  message: OpenAIChatCompletionMessage,
   usage?: TokenUsage,
 ): AssistantMessage {
   const result: AssistantMessage = {

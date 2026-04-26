@@ -1,6 +1,6 @@
-import type { ChatCompletionChunk } from "openai/resources";
-
 import type { AssistantMessage, AssistantMessageContent, TokenUsage } from "@/foundation";
+
+import { getReasoningContent, type OpenAIChatCompletionChunk } from "./types";
 
 function toTokenUsage(usage?: {
   prompt_tokens?: number;
@@ -21,13 +21,13 @@ export class StreamAccumulator {
   private toolCalls = new Map<number, { id: string; name: string; arguments: string }>();
   private usage: TokenUsage | undefined;
 
-  push(chunk: ChatCompletionChunk): void {
+  push(chunk: OpenAIChatCompletionChunk): void {
     const delta = chunk.choices[0]?.delta;
 
     if (delta) {
       // Reasoning / thinking content
-      const reasoning = (delta as { reasoning_content?: string }).reasoning_content;
-      if (typeof reasoning === "string") {
+      const reasoning = getReasoningContent(delta);
+      if (reasoning) {
         this.reasoningContent += reasoning;
       }
 
